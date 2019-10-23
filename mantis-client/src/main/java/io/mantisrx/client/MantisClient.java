@@ -54,15 +54,12 @@ public class MantisClient {
         @Override
         public Observable<EndpointChange> locatePartitionedSinkForJob(final String jobId, final int forPartition, final int totalPartitions) {
             return clientWrapper.getMasterClientApi()
-                    .flatMap((MantisMasterClientApi mantisMasterClientApi) -> {
-                        Integer sinkStage = null;
-                        return mantisMasterClientApi.getSinkStageNum(jobId)
-                                .take(1) // only need to figure out sink stage number once
-                                .flatMap((Integer integer) -> {
-                                    logger.info("Getting sink locations for " + jobId);
-                                    return clientWrapper.getSinkLocations(jobId, integer, forPartition, totalPartitions);
-                                });
-                    });
+                    .flatMap((MantisMasterClientApi mantisMasterClientApi) -> mantisMasterClientApi.getSinkStageNum(jobId)
+                            .take(1) // only need to figure out sink stage number once
+                            .flatMap((Integer integer) -> {
+                                logger.info("Getting sink locations for " + jobId);
+                                return clientWrapper.getSinkLocations(jobId, integer, forPartition, totalPartitions);
+                            }));
         }
     };
 
